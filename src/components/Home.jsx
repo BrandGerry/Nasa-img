@@ -29,11 +29,14 @@ const Home = () => {
     const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&start_date=${startDate}&end_date=${endDate}`;
 
     try {
+      setIsLoading(true); // Iniciar carga
       const response = await axios.get(apiUrl);
       setImageData(response.data);
     } catch (error) {
       console.error("Error fetching NASA images:", error);
-      setIsLoading(true);
+    }
+    finally{
+      setIsLoading(false);
     }
   };
 
@@ -51,28 +54,26 @@ const Home = () => {
         Images
       </Typography>
       <Input variant="solid" type="date" value={startDate} onChange={handleStartDateChange}/>
-      {imageData.length > 0 ? (
-      <div>
-        <Grid container spacing={1}>
-          {currentImages.map((image, index) => (
-            <Grid item xs={12} md={6} lg={4} key={index}>
-              <CardNasa
-                img={image.url}
-                title={image.title}
-                explanation={image.explanation}
-              />
-            </Grid>
-          ))}
-        </Grid>
-        <Box sx={{ display: "flex", justifyContent: "center", padding: 4 }}>
-          <Pagination
-            count={Math.ceil(imageData.length / imagesPerPage)}
-            page={currentPage}
-            onChange={(event, value) => setCurrentPage(value)}
-          />
-        </Box>
-      </div>
-    ) : null}
+      {isLoading ? (
+        <Loading /> // Mostrar componente de carga si isLoading es true
+      ) : (
+        <div>
+          <Grid container spacing={1}>
+            {currentImages.map((image, index) => (
+              <Grid item xs={12} md={6} lg={4} key={index}>
+                <CardNasa img={image.url} title={image.title} explanation={image.explanation} />
+              </Grid>
+            ))}
+          </Grid>
+          <Box sx={{ display: "flex", justifyContent: "center", padding: 4 }}>
+            <Pagination
+              count={Math.ceil(imageData.length / imagesPerPage)}
+              page={currentPage}
+              onChange={(event, value) => setCurrentPage(value)}
+            />
+          </Box>
+        </div>
+      )}
     </Container>
   );
 };
